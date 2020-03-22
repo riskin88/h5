@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>H5 Rozvržení týmů</title>
+
+    <script src="./jquery-3.3.1.min.js"></script>
+    <script src="./h5.js"></script>
+    <style>
+        .menu a{
+            padding: 0 20px;
+            color: darkblue;
+        }
+        .menu .active{
+            color: black;
+            font-weight: bold;
+        }
+        .content .tab{
+            padding: 20px;
+            display: none;
+        }
+        .dataTable th, .dataTable td{
+            padding: 5px 10px;
+        }
+        .dataTable td{
+            text-align: center;
+        }
+        .dataTable .template{
+            display: none;
+        }
+        .teamsTable th{
+            text-align: left;
+        }
+        .savedNotice {
+            padding: 10px 20px;
+            display: none;
+        }
+        #genButton {
+            font-size: 1.2em;
+            padding: 5px 10px;
+        }
+        #notFoundMsg{
+            color:red;
+            margin-left: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <a href="#table" class="table">Tabulka</a>
+        <a href="#info" class="info">Info</a>
+        <a href="#teams">Týmy</a>
+        <a href="#results">Výsledky</a>
+    </div>
+
+    <div class="content">
+        <div id="table" class="tab">
+
+            <p id="placeholder">Tabulku není možné vygenerovat. Máme nějaké týmy? Více než dva v každé definované kategorii?</p>
+
+            <p id="genButtonCont" style="display: none;">
+                <button id="genButton">Vygenerovat tabulku</button>
+                <span id="notFoundMsg">Řešení bez nenulového počtu zápasů nenalezeno.</span>
+            </p>
+
+            <table class="matchTable" border="1" style="display: none;">
+            </table>
+
+            <p id="kdoSKym" style="font-weight: bold;display: none;">Kdo s kým hraje</p>
+            <div class="countTables" style="display: none;"></div>
+        </div>
+        <div id="info" class="tab">
+            <strong>Týmy:</strong>
+            <table class="teamList dataTable">
+                <tr>
+                    <th>Kategorie</th>
+                    <th>Jméno</th>
+                </tr>
+                <tr class="template">
+                    <td class="catRow"></td>
+                    <td class="nameRow"></td>
+                </tr>
+            </table>
+        </div>
+        <div id="teams" class="tab">
+            <table class="teamsTable dataTable">
+                <tr>
+                    <th>Jméno</th>
+                    <th>Kategorie</th>
+                    <th>&nbsp;</th>
+                </tr>
+                <tr class="teamRow template">
+                    <td><input class="teamName" type="text" style="width:200px;"></td>
+                    <td><select class="teamCatSelect" style="width:200px;"></select></td>
+                    <td><button class="removeRowButton">Odstranit</button></td>
+                </tr>
+            </table>
+
+            <p>
+                <button id="newTeamButton">Nový tým</button>
+                <button id="saveTeamsButton" style="margin-left: 40px;">Uložit týmy</button>
+            </p>
+
+        </div>
+        <div id="results" class="tab">RESULTS</div>
+
+        <div id="savedTeamsPresent" class="savedNotice">
+            Týmy načteny z lokálního úložiště. &nbsp;<button id="clearTeamsButton" style="color: red;">Smazat týmy z úložiště</button>
+        </div>
+    </div>
+</body>
+</html>
