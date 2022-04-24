@@ -3,22 +3,19 @@
     var categories = {
         1: {name: "do 10 let"},
         2: {name: "10-15 let"},
-        3: {name: "do 15 let"},
-        4: {name: "nad 15 let"}
+        3: {name: "nad 15 let"}
     };
 
     var blocks = {
-        1: {time: "12:45 - 13:15", run: false},
-        2: {time: "13:15 - 13:45", run: false},
-        3: {time: "13:45 - 14:15", run: false},
-        4: {time: "14:15 - 14:45", run: false},
-        5: {time: "14:45 - 15:15", run: false},
-        6: {time: "15:15 - 15:45", run: false},
-        7: {time: "15:45 - 16:15", run: false},
-        8: {time: "16:15 - 16:45", run: false},
-        9: {time: "16:45 - 17:15", run: false}
+        1: {time: "13:45 - 14:15", run: false},
+        2: {time: "14:15 - 14:45", run: false},
+        3: {time: "14:45 - 15:15", run: false},
+        4: {time: "15:15 - 15:45", run: false},
+        5: {time: "15:45 - 16:15", run: false},
+        6: {time: "16:15 - 16:45", run: false},
+        7: {time: "16:45 - 17:15", run: false}
     };
-    var numBlocks = 9;
+    var numBlocks = 7;
 
     var playgrounds = {
         1: {name: "Vybika/přehazka", usedInBlock: false},
