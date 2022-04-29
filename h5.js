@@ -6,7 +6,7 @@
         3: {name: "nad 15 let"}
     };
 
-    var blocks = {
+    var blockPool = {
     	1: {time: "13:15 - 13:45", run: false},
         2: {time: "13:45 - 14:15", run: false},
         3: {time: "14:15 - 14:45", run: false},
@@ -17,7 +17,8 @@
         8: {time: "16:45 - 17:15", run: false},
         9: {time: "17:15 - 17:45", run: false}
     };
-    var numBlocks = 7;
+    var numBlocks;
+    var blocks = [];
 
     var playgrounds = {
         1: {name: "Vybika/přehazka", usedInBlock: false},
@@ -103,6 +104,16 @@
                 }
             }
         });
+    }
+    
+     function loadBlocks(){
+     	blocks = [];
+    	var count = parseInt($(".blockCount").val());
+    	 for (let i = 1; i <= count; i++){
+    		blocks.push(blockPool[i]);
+    	}
+    	numBlocks = count;
+    	
     }
 
     function hidePlaceholder(){
@@ -261,6 +272,8 @@
 
     function fillTable(){
         $("#notFoundMsg").hide();
+        
+        loadBlocks();
 
         var failedTeams = 0; // counter of teams which have 0 matches on any playground
         var counter = 0;    // infinite cycle stopper
