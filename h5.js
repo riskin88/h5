@@ -7,13 +7,15 @@
     };
 
     var blocks = {
-        1: {time: "13:45 - 14:15", run: false},
-        2: {time: "14:15 - 14:45", run: false},
-        3: {time: "14:45 - 15:15", run: false},
-        4: {time: "15:15 - 15:45", run: false},
-        5: {time: "15:45 - 16:15", run: false},
-        6: {time: "16:15 - 16:45", run: false},
-        7: {time: "16:45 - 17:15", run: false}
+    	1: {time: "13:15 - 13:45", run: false},
+        2: {time: "13:45 - 14:15", run: false},
+        3: {time: "14:15 - 14:45", run: false},
+        4: {time: "14:45 - 15:15", run: false},
+        5: {time: "15:15 - 15:45", run: false},
+        6: {time: "15:45 - 16:15", run: false},
+        7: {time: "16:15 - 16:45", run: false},
+        8: {time: "16:45 - 17:15", run: false},
+        9: {time: "17:15 - 17:45", run: false}
     };
     var numBlocks = 7;
 
