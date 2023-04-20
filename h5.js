@@ -15,17 +15,21 @@
         6: {time: "15:45 - 16:15", run: false},
         7: {time: "16:15 - 16:45", run: false},
         8: {time: "16:45 - 17:15", run: false},
-        9: {time: "17:15 - 17:45", run: false}
+        9: {time: "17:15 - 17:45", run: false},
+        10: {time: "17:45 - 18:15", run: false}
     };
     var numBlocks;
     var blocks = [];
 
     var playgrounds = {
-        1: {name: "Vybika/přehazka", usedInBlock: false},
-        2: {name: "Fotbal", usedInBlock: false},
-        3: {name: "Frisbee", usedInBlock: false}
+        1: {name: "Přehazka/volejbal", spots: {1: {usedInBlock: false}}, //usedInBlock: false
+            },
+        2: {name: "Fotbal", spots: {1: {usedInBlock: false}, 2: {usedInBlock: false}}, //usedInBlock: false
+            },
+        3: {name: "Frisbee", spots: {1: {usedInBlock: false}, 2: {usedInBlock: false}}, //usedInBlock: false
+        }
     };
-    var numPlaygrounds = 3;
+    var numSpots = 3;
 
     var teams = [];
 
@@ -292,7 +296,7 @@
             });
             counter++;
 
-        } while(failedTeams > 0 && counter < 1000);
+        } while(failedTeams > 0 && counter < 2000);
 
         if (failedTeams > 0) {
             $("#notFoundMsg").show();
@@ -317,7 +321,7 @@
         // sort by count of teams first - descending
         sortTeams(true);
 
-        var lessCatsThanPlaygrounds = teams.length < numPlaygrounds;
+        var lessCatsThanPlaygrounds = teams.length < numSpots;
 
         // for each time block
         $.each(blocks, function(blockId, blockData){
@@ -360,33 +364,37 @@
         $.each(result[blockId], function(i, teams){
             numMatches++;
         });
-        return numMatches < numPlaygrounds;
+        return numMatches < numSpots;
     }
 
     function fillEmptySlots(blockId){
 
         $.each(playgrounds, function(pgId, pgData){
-            if(typeof result[blockId] !== "undefined" && typeof result[blockId][pgId] === "undefined"){
-                // get first cat that has more than 2 teams
-                $.each(teams, function(i, catData){
-                    if(getTeamCount(catData.teams) > 2){
-                        var result = processCat(blockId, [], catData);
-                        if(result === true){
-                            return false; // break
+            $.each(pgData.spots, function(spotId, spotData){
+                if(typeof result[blockId] !== "undefined" && typeof result[blockId][pgId] !== "undefined" && typeof result[blockId][pgId][spotId] === "undefined"){
+                    // get first cat that has more than 2 teams
+                    $.each(teams, function(i, catData){
+                        if(getTeamCount(catData.teams) > 2){
+                            var result = processCat(blockId, [], catData);
+                            if(result === true){
+                                return false; // break
+                            }
                         }
-                    }
-                });
-            }
+                    });
+                }
+            })
         });
     }
 
     function catPlayedLastBlock(blockId, catId){
         var catPlayed = false;
-        $.each(result[blockId-1], function(i, teams){
-            if(teams[0].catId === catId){
-                catPlayed = true;
-                return false; // break
-            }
+        $.each(result[blockId-1], function(i, spots){
+            $.each(spots, function(j, teams){
+                if(teams[0].catId === catId){
+                    catPlayed = true;
+                    return false; // break
+                }
+            })
         });
 
         return catPlayed;
@@ -412,17 +420,21 @@
 
             // now set playground and teams as used
             setTeamsPlayedTogether(teamData.cat, matchTeams);
-            setPlaygroundUsed(playground.id);
+            setPlaygroundUsed(playground.pgId, playground.spotId);
             $.each(matchTeams, function(i, matchTeam){
-                setTeamUsed(matchTeam.catId, matchTeam.teamId, blockId, playground.id);
+                setTeamUsed(matchTeam.catId, matchTeam.teamId, blockId, playground.pgId);
             });
 
             if(typeof result[blockId] === "undefined"){
                 result[blockId] = {};
             }
-            if(typeof result[blockId][playground.id] === "undefined"){
-                result[blockId][playground.id] = matchTeams;
+            if(typeof result[blockId][playground.pgId] === "undefined"){
+                result[blockId][playground.pgId] = {};
             }
+            if(typeof result[blockId][playground.pgId][playground.spotId] === "undefined"){
+                result[blockId][playground.pgId][playground.spotId] = matchTeams;
+            }
+
 
             return true;
         }
@@ -448,12 +460,16 @@
     function getFreePlayground(matchTeams){
         var pgsFound = [];
         $.each(playgrounds, function(pgId, pgData){
-            if(pgData.usedInBlock === false){
-                pgsFound.push({
-                    id: pgId,
-                    rank: getPlaygroundRank(pgId, matchTeams)
-                });
-            }
+            $.each(pgData.spots, function(spotId, spotData)
+            {
+                if (spotData.usedInBlock === false) {
+                    pgsFound.push({
+                        pgId: pgId,
+                        spotId: spotId,
+                        rank: getPlaygroundRank(pgId, matchTeams)
+                    });
+                }
+            })
         });
 
         // order found playgrounds by rank
@@ -486,8 +502,8 @@
         return rank;
     }
 
-    function setPlaygroundUsed(pgId){
-        playgrounds[pgId].usedInBlock = true;
+    function setPlaygroundUsed(pgId, spotId){
+        playgrounds[pgId].spots[spotId].usedInBlock = true;
     }
 
     function setTeamUsed(catId, teamId, blockId, pgId){
@@ -617,7 +633,7 @@
     }
 
     function getTeamRank(teamData, teamId, firstTeam){
-        var rank = 15;
+        var rank = 30;
 
         // the less matches team had, the bigger rank it should have
         rank -= teamData.matches*2;
@@ -637,7 +653,10 @@
 
     function resetUsedFlag(){
         $.each(playgrounds, function(pgId, pgData){
-            playgrounds[pgId].usedInBlock = false;
+            $.each(pgData.spots, function(spotId, spotData)
+            {
+                playgrounds[pgId].spots[spotId].usedInBlock = false;
+            })
         });
         $.each(teams, function(catId, catData){
             $.each(catData.teams, function(teamId, teamData){
@@ -646,7 +665,7 @@
         });
     }
 
-    function sortTeams(desc){
+    function sortTeams(desc){ // sort categories by count of teams they contain
         var more = 1;
         var less = -1;
         if(desc === true){
@@ -677,12 +696,15 @@
         });
         matchTable.append(row);
 
-        $.each(playgrounds, function(pgId, plgData){
-            var row = $("<tr><th>"+plgData.name+"</th></tr>");
-            $.each(blocks, function(blockId, blockData){
-                drawCell(row, drawCellData(blockId, pgId), false);
-            });
-            matchTable.append(row);
+        $.each(playgrounds, function(pgId, pgData){
+            $.each(pgData.spots, function(spotId, spotData){
+                var row = $("<tr><th>"+pgData.name+"["+spotId+"]"+"</th></tr>");
+                $.each(blocks, function(blockId, blockData){
+                    drawCell(row, drawCellData(blockId, pgId,spotId), false);
+                });
+                matchTable.append(row);
+            })
+
         });
 
         var countTable = $(".countTables");
@@ -723,8 +745,8 @@
         cell.text(text);
     }
 
-    function drawCellData(blockId, pgId){
-        var cellData = getCellData(blockId, pgId);
+    function drawCellData(blockId, pgId, spotId){
+        var cellData = getCellData(blockId, pgId, spotId);
         if(cellData === null){
             return "--";
         }
@@ -732,14 +754,18 @@
         return cellData[0].data.name + " / " + cellData[1].data.name;
     }
 
-    function getCellData(blockId, pgId){
+    function getCellData(blockId, pgId, spotId){
         if(typeof result[blockId] === "undefined"){
             return null;
         }
         if(typeof result[blockId][pgId] === "undefined"){
             return null;
         }
-        return result[blockId][pgId];
+
+        if(typeof result[blockId][pgId][spotId] === "undefined"){
+            return null;
+        }
+        return result[blockId][pgId][spotId];
     }
 
 
