@@ -27,9 +27,10 @@
         2: {name: "Fotbal", spots: {1: {usedInBlock: false}, 2: {usedInBlock: false}}, //usedInBlock: false
             },
         3: {name: "Frisbee", spots: {1: {usedInBlock: false}, 2: {usedInBlock: false}}, //usedInBlock: false
-        }
+        },
+        //4: {name: "Petanque", spots: {1: {usedInBlock: false}}}
     };
-    var numSpots = 3;
+    var numSpots = 5;
 
     var teams = [];
 
@@ -58,8 +59,8 @@
     // how many times team played with another team - indexed by category and then by teamIds
     var teamMatches = {};
 
-    // result is indexed by block and playground
-    var result = {};
+    // schedule is indexed by block and playground
+    var schedule = {};
 
     $(document).ready(function(){
 
@@ -73,14 +74,30 @@
         //drawTable();
 
         $("#genButton").click(function(){
-
+            loadBlocks();
             fillTable();
 
             $(".matchTable").show().find("tr:visible").remove();
             $(".countTables").show().html("");
             $(".kdoSKym").show();
+            $("#saveMatchesButton").show();
 
             drawTable();
+        });
+
+        $("#loadMatchesButton").click(function(){
+            loadBlocks();
+            checkAndLoadSavedMatches();
+            $(".matchTable").show().find("tr:visible").remove();
+            $(".countTables").show().html("");
+            $(".kdoSKym").show();
+
+            drawTable();
+        });
+
+        $("#saveMatchesButton").click(function(){
+            saveMatches();
+            alert("Uloženo.");
         });
 
         $(window).scrollTop(0);
@@ -182,10 +199,31 @@
             $("#clearTeamsButton").click(function(){
                 var ok = confirm("Opravdu smazat týmy z lokálního úložiště?");
                 if (ok === true) {
-                    localStorage.clear();
+                    localStorage.removeItem("teams");
                     showPlaceholder();
                     teams = [];
                     $("#savedTeamsPresent").hide();
+                }
+            });
+        }
+    }
+
+    function checkAndLoadSavedMatches(){
+        var savedSchedule = localStorage["schedule"];
+        var savedMatches = localStorage["matches"];
+        var savedTeams = localStorage["teams"];
+
+        if (typeof savedSchedule !== "undefined") {
+            schedule = JSON.parse(savedSchedule);
+            teamMatches = JSON.parse(savedMatches);
+            teams = JSON.parse(savedTeams);
+            $("#savedMatchesPresent").show();
+            $("#clearMatchesButton").click(function(){
+                var ok = confirm("Opravdu smazat zápasy z lokálního úložiště?");
+                if (ok === true) {
+                    localStorage.removeItem("schedule");
+                    localStorage.removeItem("matches");
+                    $("#savedMatchesPresent").hide();
                 }
             });
         }
@@ -221,6 +259,14 @@
         localStorage.setItem("teams", JSON.stringify(teams));
 
         console.log("saved", teams);
+    }
+
+    function saveMatches(){
+
+        localStorage.setItem("schedule", JSON.stringify(schedule));
+        localStorage.setItem("matches", JSON.stringify(teamMatches));
+        localStorage.setItem("teams", JSON.stringify(teams));
+
     }
 
     function createTeam(name){
@@ -276,8 +322,6 @@
 
     function fillTable(){
         $("#notFoundMsg").hide();
-        
-        loadBlocks();
 
         var failedTeams = 0; // counter of teams which have 0 matches on any playground
         var counter = 0;    // infinite cycle stopper
@@ -307,7 +351,7 @@
 
         console.log("filling using", teams);
 
-        result = {};
+        schedule = {};
         teamMatches = {};
         $.each(teams, function(i, catData){
             $.each(catData.teams, function(j, teamData){
@@ -361,7 +405,7 @@
 
     function hasEmptySlots(blockId){
         var numMatches = 0;
-        $.each(result[blockId], function(i, teams){
+        $.each(schedule[blockId], function(i, teams){
             numMatches++;
         });
         return numMatches < numSpots;
@@ -371,7 +415,7 @@
 
         $.each(playgrounds, function(pgId, pgData){
             $.each(pgData.spots, function(spotId, spotData){
-                if(typeof result[blockId] !== "undefined" && typeof result[blockId][pgId] !== "undefined" && typeof result[blockId][pgId][spotId] === "undefined"){
+                if(typeof schedule[blockId] !== "undefined" && typeof schedule[blockId][pgId] !== "undefined" && typeof schedule[blockId][pgId][spotId] === "undefined"){
                     // get first cat that has more than 2 teams
                     $.each(teams, function(i, catData){
                         if(getTeamCount(catData.teams) > 2){
@@ -388,7 +432,7 @@
 
     function catPlayedLastBlock(blockId, catId){
         var catPlayed = false;
-        $.each(result[blockId-1], function(i, spots){
+        $.each(schedule[blockId-1], function(i, spots){
             $.each(spots, function(j, teams){
                 if(teams[0].catId === catId){
                     catPlayed = true;
@@ -425,14 +469,14 @@
                 setTeamUsed(matchTeam.catId, matchTeam.teamId, blockId, playground.pgId);
             });
 
-            if(typeof result[blockId] === "undefined"){
-                result[blockId] = {};
+            if(typeof schedule[blockId] === "undefined"){
+                schedule[blockId] = {};
             }
-            if(typeof result[blockId][playground.pgId] === "undefined"){
-                result[blockId][playground.pgId] = {};
+            if(typeof schedule[blockId][playground.pgId] === "undefined"){
+                schedule[blockId][playground.pgId] = {};
             }
-            if(typeof result[blockId][playground.pgId][playground.spotId] === "undefined"){
-                result[blockId][playground.pgId][playground.spotId] = matchTeams;
+            if(typeof schedule[blockId][playground.pgId][playground.spotId] === "undefined"){
+                schedule[blockId][playground.pgId][playground.spotId] = matchTeams;
             }
 
 
@@ -755,17 +799,17 @@
     }
 
     function getCellData(blockId, pgId, spotId){
-        if(typeof result[blockId] === "undefined"){
+        if(typeof schedule[blockId] === "undefined"){
             return null;
         }
-        if(typeof result[blockId][pgId] === "undefined"){
+        if(typeof schedule[blockId][pgId] === "undefined"){
             return null;
         }
 
-        if(typeof result[blockId][pgId][spotId] === "undefined"){
+        if(typeof schedule[blockId][pgId][spotId] === "undefined"){
             return null;
         }
-        return result[blockId][pgId][spotId];
+        return schedule[blockId][pgId][spotId];
     }
 
 

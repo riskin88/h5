@@ -65,12 +65,19 @@
                 <button id="genButton">Vygenerovat tabulku</button>
                 <span id="notFoundMsg">Řešení bez nenulového počtu zápasů nenalezeno.</span>
             </p>
+            <p id="loadButtonCont" style="">
+                <button id="loadMatchesButton">Načíst zápasy</button>
+            </p>
 
             <table class="matchTable" border="1" style="display: none;">
             </table>
 
             <p id="kdoSKym" style="font-weight: bold;display: none;">Kdo s kým hraje</p>
             <div class="countTables" style="display: none;"></div>
+
+            <p>
+                <button id="saveMatchesButton" style="margin-left: 40px; display: none">Uložit zápasy</button>
+            </p>
         </div>
         <div id="info" class="tab">
             <strong>Týmy:</strong>
@@ -109,6 +116,9 @@
 
         <div id="savedTeamsPresent" class="savedNotice">
             Týmy načteny z lokálního úložiště. &nbsp;<button id="clearTeamsButton" style="color: red;">Smazat týmy z úložiště</button>
+        </div>
+        <div id="savedMatchesPresent" class="savedNotice">
+            Zápasy načteny z lokálního úložiště. &nbsp;<button id="clearMatchessButton" style="color: red;">Smazat zápasy z úložiště</button>
         </div>
     </div>
 </body>
